@@ -19,10 +19,8 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({ push: pushMock })
 }));
 
-vi.mock('@/auth/infrastructure/context', () => ({
-  authContext: {
-    get: () => ({ getCurrentUser: getCurrentUserMock })
-  }
+vi.mock('@/auth/api/authRepoImpl', () => ({
+  authRepo: { getCurrentUser: getCurrentUserMock }
 }));
 
 describe('AppHeader', () => {

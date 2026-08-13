@@ -3,12 +3,9 @@ import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUsers } from '../composables/useUsers';
 import { useUser } from '../composables/useUser';
-import { usersContext } from '@/users/infrastructure/context';
+import { usersRepo } from '@/users/api/usersRepoImpl';
 import AppPageHeading from '@/ui-kit/AppPageHeading.vue';
 import AppButton from '@/ui-kit/AppButton.vue';
-import type { UsersRepo } from '@/users/domain/usersRepo';
-
-const userRepo = usersContext.get<UsersRepo>('UsersRepository');
 
 const route = useRoute();
 const { users } = useUsers();
@@ -24,7 +21,7 @@ function getUser(): void {
 
 async function getUsers(): Promise<void> {
   try {
-    users.value = await userRepo.getUsers();
+    users.value = await usersRepo.getUsers();
   } catch (err) {
     console.log(err);
   }

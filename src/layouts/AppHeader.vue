@@ -5,15 +5,11 @@ import { useNavbar } from '@/layouts/useNavbar';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/auth/composables/useAuth';
 import { useNotification } from '@/ui-kit/appNotification/useNotification';
-import { authContext } from '@/auth/infrastructure/context';
+import { authRepo } from '@/auth/api/authRepoImpl';
 import { apiErrors } from '@/infrastructure/utils/apiErrors';
 import AppIconButton from '@/ui-kit/AppIconButton.vue';
 import AppLogo from '@/ui-kit/AppLogo.vue';
 import LogoutView from '@/auth/views/LogoutView.vue';
-
-import type { AuthRepo } from '@/auth/domain/AuthRepo';
-
-const authRepo = authContext.get<AuthRepo>('AuthRepo');
 
 const router = useRouter();
 const theme = useTheme();

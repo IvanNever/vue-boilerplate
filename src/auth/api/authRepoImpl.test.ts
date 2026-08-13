@@ -8,12 +8,8 @@ const { postMock, getMock, patchMock } = vi.hoisted(() => ({
   patchMock: vi.fn()
 }));
 
-vi.mock('@/infrastructure/context', () => ({
-  publicContext: {
-    get: () => ({
-      getInst: () => ({ post: postMock, get: getMock, patch: patchMock })
-    })
-  }
+vi.mock('@/infrastructure/api/apiClient', () => ({
+  apiClient: { post: postMock, get: getMock, patch: patchMock }
 }));
 
 describe('AuthRepoImpl', () => {

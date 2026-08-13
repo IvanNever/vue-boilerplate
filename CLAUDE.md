@@ -10,9 +10,8 @@ VueMart — an ecommerce admin panel built with Vue 3, TypeScript, and Vuetify. 
 
 The codebase is mid-refactor into a reusable boilerplate. Plan: `/Users/ivanneverovskyi/.claude/plans/clever-forging-horizon.md`. Decisions already made, in effect immediately even though the code doesn't fully reflect them yet:
 
-- **No new DI-container registrations.** The hand-rolled context in `src/infrastructure/context/` is being removed (see below — it's documented here only because it still exists in code). New repos should be plain module-singleton exports, not registered anywhere.
+- **No DI container.** It's been removed (see "API layer" below for the current pattern). Do not reintroduce a service locator/registry — repos are plain module-singleton exports, consumed via direct import.
 - **No new module-scope `ref` state.** State is moving to Pinia. Don't add more of the `useAuth`/`useUsers`-style shared refs described below.
-- Tests are being rewritten from scratch; don't pattern-match old test files that may still be in the tree mid-refactor.
 
 ## Commands
 
@@ -22,7 +21,7 @@ npm run build             # type-check + production build
 npm run preview           # preview production build
 npm run test:unit         # run all tests (Vitest)
 npm run coverage          # run tests with coverage (v8)
-npm run lint              # eslint --fix over .vue/.js/.jsx/.cjs/.mjs/.ts/.tsx/.cts/.mts
+npm run lint              # eslint . --fix (flat config, eslint.config.js)
 npm run format             # prettier --write src/
 npm run type-check         # vue-tsc --build --force
 ```
@@ -30,7 +29,7 @@ npm run type-check         # vue-tsc --build --force
 Run a single test file: `npx vitest run src/auth/views/LoginView.test.ts`
 Run tests matching a name: `npx vitest run -t "renders the login form"`
 
-Test files live next to the code they test (`Foo.ts` + `Foo.test.ts` in the same directory), not in a separate `__tests__` folder. Vitest config: jsdom environment, globals enabled, setup file at `src/infrastructure/test-utils/setupTests.ts` (registers Vuetify and mocks `vue-router`'s `useRouter`).
+Test files live next to the code they test (`Foo.ts` + `Foo.test.ts` in the same directory), not in a separate `__tests__` folder. Vitest config: jsdom environment, globals enabled, setup file at `src/infrastructure/test-utils/setupTests.ts` — registers Vuetify (with its full `components`/`directives`, required for any component test to render real markup) and stubs two browser globals jsdom lacks (`ResizeObserver`, `visualViewport`) that Vuetify's overlay/menu/dialog components touch at runtime. It does **not** mock `vue-router` globally — mock `useRouter`/`useRoute` per test file with `vi.mock('vue-router', ...)` where needed.
 
 ## Architecture
 
@@ -41,27 +40,16 @@ The codebase is organized as **feature modules** under `src/` (`auth`, `users`, 
 Each feature module follows a layered structure inspired by DDD:
 
 - `domain/` — plain classes/interfaces with no framework dependencies: entities (extend `Entity`/`AggregateRoot` from `src/common/domain`), repo interfaces (e.g. `UsersRepo`, `AuthRepo`).
-- `api/` — concrete repo implementations (e.g. `UsersRepoImpl`) that extend `BaseRepo` and talk to the backend via axios, plus DTO types and DTO⇄domain mappers (`userDtoMapper.ts`).
-- `infrastructure/context.ts` — wires the module's repo implementation into a per-module DI context (see below) and exposes an `init*Context()` function called once from `main.ts`.
+- `api/` — concrete repo implementations (e.g. `UsersRepoImpl`) that extend `BaseRepo` and talk to the backend via axios, plus DTO types and DTO⇄domain mappers (`userDtoMapper.ts`). Each `*RepoImpl.ts` file also exports a ready singleton instance (`export const usersRepo: UsersRepo = new UsersRepoImpl()`) — this is what consumers import, not the class.
 - `infrastructure/routes.ts` — the module's `RouteRecordRaw[]`, imported into the central router.
-- `composables/` — Vue composition functions (`useUsers`, `useAuth`) that hold shared module-scoped `ref`/`reactive` state (declared at module scope, outside the composable function, so state is shared across components) and call into the repo via the module's context.
+- `composables/` — Vue composition functions (`useUsers`, `useAuth`) that hold shared module-scoped `ref`/`reactive` state (declared at module scope, outside the composable function, so state is shared across components) and call the repo singleton via direct import.
 - `views/` — route-level `.vue` components.
-
-### Dependency injection (`src/infrastructure/context/index.ts`)
-
-A minimal hand-rolled DI container, not a library. Key pieces:
-
-- `initPublicContext()` creates a global `publicContext` and registers `ApiCoreImpl` under `'ApiCore'`. Call once in `main.ts` before any module context.
-- `createContext(name)` creates a module-local context wired to the shared `publicContext`.
-- `context.registry(Service, key)` instantiates `new Service()` and stores it; throws if the key is already registered. `registryOverwrite` replaces without checking. `registryPublic` registers on the shared public context instead of the local one.
-- Consumers fetch services with `context.get<T>('key')`, typed via generics — there's no automatic constructor injection, just a keyed instance map.
-- Each module's `infrastructure/context.ts` must export an `init*Context()` and call it from `main.ts` in the correct order (public context first).
 
 ### API layer
 
-- `ApiCoreImpl` (`src/infrastructure/api/ApiCore.ts`) wraps a single axios instance shared app-wide: attaches `Bearer <token>` from `localStorage` on every request, and on a `403` response clears the token and hard-redirects to `/login`.
-- `BaseRepo` (`src/infrastructure/api/BaseRepo.ts`) is the base class for all repo implementations — it pulls `ApiCore` out of `publicContext` and exposes `this.inst` (the axios instance). New repos should extend this rather than creating their own axios instance.
-- Repos build URLs from `import.meta.env.VITE_API_BASE_URL` + a resource path, and always convert between wire-format DTOs and domain objects via a mapper function (never expose DTOs to views/composables).
+- `apiClient` (`src/infrastructure/api/apiClient.ts`) is a single shared axios instance, exported directly (no class, no registration): attaches `Bearer <token>` from `localStorage` on every request, and on a `403` response clears the token and hard-redirects to `/login`.
+- `BaseRepo` (`src/infrastructure/api/BaseRepo.ts`) is a thin base class for repo implementations — `protected readonly inst: AxiosInstance = apiClient`, set via direct import. New repos should extend this rather than creating their own axios instance.
+- Repos build URLs from `import.meta.env.VITE_API_BASE_URL` + a resource path, always convert between wire-format DTOs and domain objects via a mapper function (never expose DTOs to views/composables), and export a singleton instance for consumers to import (see above). There is no DI container — swapping an implementation means changing the import, and tests substitute it via `vi.mock('@/users/api/usersRepoImpl', ...)`.
 
 ### Domain primitives (`src/common/domain`)
 
@@ -86,4 +74,4 @@ Wrapper components around Vuetify primitives (`AppInput`, `AppButton`, `AppForm`
 ## Code style
 
 - Semicolon usage is inconsistent across the codebase (some files use them, some don't) — Prettier is configured with `singleQuote: true`, `trailingComma: none`, `printWidth: 80`; run `npm run format` rather than hand-matching style.
-- ESLint extends `plugin:vue/vue3-essential`, `eslint:recommended`, and the Vue/TypeScript + Prettier configs (`.eslintrc.cjs`).
+- ESLint uses flat config (`eslint.config.js`): `eslint-plugin-vue`'s `flat/recommended`, `@eslint/js` recommended, `@vue/eslint-config-typescript`'s `vueTsConfigs.recommended`, and Prettier's `skip-formatting` (formatting is `npm run format`'s job, not lint's).

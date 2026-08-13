@@ -10,10 +10,8 @@ vi.mock('vue-router', () => ({
   useRoute: () => ({ params: { id: '1' } })
 }));
 
-vi.mock('@/users/infrastructure/context', () => ({
-  usersContext: {
-    get: () => ({ getUsers: getUsersMock })
-  }
+vi.mock('@/users/api/usersRepoImpl', () => ({
+  usersRepo: { getUsers: getUsersMock }
 }));
 
 describe('UserDetails', () => {

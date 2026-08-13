@@ -1,13 +1,9 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import AccountView from './AccountView.vue';
 import AppSpinner from '@/ui-kit/AppSpinner.vue';
 import { useAuth } from '@/auth/composables/useAuth';
 import { userFixture } from '@/infrastructure/test-utils/fixtures/userFixture';
-
-vi.mock('@/auth/infrastructure/context', () => ({
-  authContext: { get: () => ({}) }
-}));
 
 describe('AccountView', () => {
   beforeEach(() => {

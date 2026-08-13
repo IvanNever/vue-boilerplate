@@ -6,10 +6,8 @@ const { updatePasswordMock, showNotificationMock } = vi.hoisted(() => ({
   showNotificationMock: vi.fn()
 }));
 
-vi.mock('@/auth/infrastructure/context', () => ({
-  authContext: {
-    get: () => ({ updateCurrentUserPassword: updatePasswordMock })
-  }
+vi.mock('@/auth/api/authRepoImpl', () => ({
+  authRepo: { updateCurrentUserPassword: updatePasswordMock }
 }));
 
 vi.mock('@/ui-kit/appNotification/useNotification', () => ({

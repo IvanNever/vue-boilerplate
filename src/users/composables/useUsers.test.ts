@@ -7,10 +7,8 @@ const { getUsersMock, showNotificationMock } = vi.hoisted(() => ({
   showNotificationMock: vi.fn()
 }));
 
-vi.mock('@/users/infrastructure/context', () => ({
-  usersContext: {
-    get: () => ({ getUsers: getUsersMock })
-  }
+vi.mock('@/users/api/usersRepoImpl', () => ({
+  usersRepo: { getUsers: getUsersMock }
 }));
 
 vi.mock('@/ui-kit/appNotification/useNotification', () => ({

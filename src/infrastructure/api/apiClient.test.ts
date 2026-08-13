@@ -1,12 +1,11 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { ApiCoreImpl } from './ApiCore';
+import { apiClient } from './apiClient';
 
-function withFakeAdapter(apiCore: ApiCoreImpl) {
-  const instance = apiCore.getInst();
+function withFakeAdapter() {
   let capturedConfig: InternalAxiosRequestConfig | undefined;
 
-  instance.defaults.adapter = (config: InternalAxiosRequestConfig) => {
+  apiClient.defaults.adapter = (config: InternalAxiosRequestConfig) => {
     capturedConfig = config;
     return Promise.resolve({
       data: {},
@@ -17,31 +16,28 @@ function withFakeAdapter(apiCore: ApiCoreImpl) {
     } as AxiosResponse);
   };
 
-  return { instance, getCapturedConfig: () => capturedConfig };
+  return { getCapturedConfig: () => capturedConfig };
 }
 
-function withRejectingAdapter(apiCore: ApiCoreImpl, status: number) {
-  const instance = apiCore.getInst();
-
-  instance.defaults.adapter = () =>
-    Promise.reject({ response: { status } });
-
-  return instance;
+function withRejectingAdapter(status: number) {
+  apiClient.defaults.adapter = () => Promise.reject({ response: { status } });
 }
 
-describe('ApiCoreImpl', () => {
+describe('apiClient', () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    apiClient.defaults.adapter = undefined;
   });
 
   describe('request interceptor', () => {
     it('attaches a Bearer token when one is stored', async () => {
       localStorage.setItem('token', 'abc123');
-      const { instance, getCapturedConfig } = withFakeAdapter(
-        new ApiCoreImpl()
-      );
+      const { getCapturedConfig } = withFakeAdapter();
 
-      await instance.get('/resource');
+      await apiClient.get('/resource');
 
       expect(getCapturedConfig()?.headers.Authorization).toBe(
         'Bearer abc123'
@@ -49,11 +45,9 @@ describe('ApiCoreImpl', () => {
     });
 
     it('omits the Authorization header when no token is stored', async () => {
-      const { instance, getCapturedConfig } = withFakeAdapter(
-        new ApiCoreImpl()
-      );
+      const { getCapturedConfig } = withFakeAdapter();
 
-      await instance.get('/resource');
+      await apiClient.get('/resource');
 
       expect(getCapturedConfig()?.headers.Authorization).toBeUndefined();
     });
@@ -61,9 +55,9 @@ describe('ApiCoreImpl', () => {
 
   describe('response interceptor', () => {
     it('passes successful responses through unchanged', async () => {
-      const { instance } = withFakeAdapter(new ApiCoreImpl());
+      withFakeAdapter();
 
-      const res = await instance.get('/resource');
+      const res = await apiClient.get('/resource');
 
       expect(res.status).toBe(200);
     });
@@ -77,9 +71,9 @@ describe('ApiCoreImpl', () => {
       });
 
       try {
-        const instance = withRejectingAdapter(new ApiCoreImpl(), 403);
+        withRejectingAdapter(403);
 
-        await expect(instance.get('/resource')).rejects.toBeTruthy();
+        await expect(apiClient.get('/resource')).rejects.toBeTruthy();
 
         expect(localStorage.getItem('token')).toBeNull();
         expect(window.location.href).toBe('http://localhost/login');
@@ -93,9 +87,9 @@ describe('ApiCoreImpl', () => {
 
     it('leaves the stored token untouched on non-403 errors', async () => {
       localStorage.setItem('token', 'abc123');
-      const instance = withRejectingAdapter(new ApiCoreImpl(), 500);
+      withRejectingAdapter(500);
 
-      await expect(instance.get('/resource')).rejects.toBeTruthy();
+      await expect(apiClient.get('/resource')).rejects.toBeTruthy();
 
       expect(localStorage.getItem('token')).toBe('abc123');
     });

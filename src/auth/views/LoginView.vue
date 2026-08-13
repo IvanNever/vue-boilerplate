@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '@/auth/composables/useAuth';
 import { useNotification } from '@/ui-kit/appNotification/useNotification';
 import { apiErrors } from '@/infrastructure/utils/apiErrors';
-import { authContext } from '@/auth/infrastructure/context';
+import { authRepo } from '@/auth/api/authRepoImpl';
 import { emailRegex } from '@/infrastructure/utils/emailRegex';
 import AppHeading from '@/ui-kit/AppHeading.vue';
 import AppCard from '@/ui-kit/AppCard.vue';
@@ -13,9 +13,6 @@ import AppForm from '@/ui-kit/AppForm.vue';
 import AppButton from '@/ui-kit/AppButton.vue';
 import AppLogo from '@/ui-kit/AppLogo.vue';
 
-import type { AuthRepo } from '@/auth/domain/AuthRepo';
-
-const authRepo = authContext.get<AuthRepo>('AuthRepo');
 const router = useRouter();
 const { token, currentUser } = useAuth();
 const { showNotification } = useNotification();

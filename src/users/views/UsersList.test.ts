@@ -15,10 +15,8 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({ push: pushMock })
 }));
 
-vi.mock('@/users/infrastructure/context', () => ({
-  usersContext: {
-    get: () => ({ getUsers: getUsersMock })
-  }
+vi.mock('@/users/api/usersRepoImpl', () => ({
+  usersRepo: { getUsers: getUsersMock }
 }));
 
 describe('UsersList', () => {

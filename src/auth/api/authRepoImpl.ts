@@ -7,10 +7,6 @@ import { currentUserFromDto } from '@/auth/api/authDtoMapper';
 const baseUrl: string = `${import.meta.env.VITE_API_BASE_URL}/auth`;
 
 export class AuthRepoImpl extends BaseRepo implements AuthRepo {
-  constructor() {
-    super();
-  }
-
   async signIn({
     email,
     password
@@ -33,3 +29,5 @@ export class AuthRepoImpl extends BaseRepo implements AuthRepo {
     await this.inst.patch(`${baseUrl}/password`, { password });
   }
 }
+
+export const authRepo: AuthRepo = new AuthRepoImpl();

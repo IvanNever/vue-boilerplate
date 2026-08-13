@@ -4,10 +4,8 @@ import { UsersRepoImpl } from './usersRepoImpl';
 
 const { getMock } = vi.hoisted(() => ({ getMock: vi.fn() }));
 
-vi.mock('@/infrastructure/context', () => ({
-  publicContext: {
-    get: () => ({ getInst: () => ({ get: getMock }) })
-  }
+vi.mock('@/infrastructure/api/apiClient', () => ({
+  apiClient: { get: getMock }
 }));
 
 describe('UsersRepoImpl', () => {

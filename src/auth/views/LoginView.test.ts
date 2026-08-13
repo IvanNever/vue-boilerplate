@@ -14,10 +14,8 @@ vi.mock('vue-router', () => ({
   useRouter: () => ({ push: pushMock })
 }));
 
-vi.mock('@/auth/infrastructure/context', () => ({
-  authContext: {
-    get: () => ({ signIn: signInMock })
-  }
+vi.mock('@/auth/api/authRepoImpl', () => ({
+  authRepo: { signIn: signInMock }
 }));
 
 vi.mock('@/ui-kit/appNotification/useNotification', () => ({
