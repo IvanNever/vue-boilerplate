@@ -75,7 +75,7 @@ async function handleSubmit() {
 
     currentUser.value = res.user;
     token.value = res.token;
-    localStorage.setItem('token', token.value);
+    localStorage.setItem('token', res.token);
 
     await router.push({ name: 'home' });
   } catch (error) {
@@ -86,7 +86,7 @@ async function handleSubmit() {
 }
 
 onMounted(() => {
-  emailInput.value.inputRef.focus();
+  emailInput.value?.inputRef?.focus();
 });
 </script>
 
@@ -94,7 +94,7 @@ onMounted(() => {
   <div
     class="d-flex flex-column align-center justify-center ma-auto h-100 ga-8 px-6 w-100 w-md-50 w-xl-33"
   >
-    <AppLogo isLoginPage />
+    <AppLogo is-login-page />
     <AppHeading class="text-center" type="h1">
       Log in to your account
     </AppHeading>
@@ -105,8 +105,8 @@ onMounted(() => {
       >
         <AppInput
           ref="emailInput"
-          :modelValue="email"
-          :errorMessages="errors.email"
+          :model-value="email"
+          :error-messages="errors.email"
           class="w-100"
           label="E-mail"
           placeholder="Email address..."
@@ -116,8 +116,8 @@ onMounted(() => {
           @update:model-value="handleEmailUpdate"
         />
         <AppInput
-          :modelValue="password"
-          :errorMessages="errors.password"
+          :model-value="password"
+          :error-messages="errors.password"
           class="w-100"
           label="Password"
           placeholder="Password..."

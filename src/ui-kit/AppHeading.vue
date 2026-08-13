@@ -9,7 +9,7 @@ const { type } = defineProps<{
 <template>
   <component
     :is="type"
-    :class="`text-${type} text-md-${type[0] + (Number(type[1] - 1) || 1)}`"
+    :class="`text-${type} text-md-${type[0] + (Number(type[1]) - 1 || 1)}`"
   >
     <slot></slot>
   </component>

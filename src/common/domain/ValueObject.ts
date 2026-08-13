@@ -1,13 +1,17 @@
 export abstract class ValueObject {
-  protected abstract getEqualityComponents(): Array<any>;
+  protected abstract getEqualityComponents(): Array<unknown>;
 
-  public equals(obj: any) {
+  public equals(obj: unknown): boolean {
     if (!obj) {
       return false;
     }
 
     if (this === obj) {
       return true;
+    }
+
+    if (!(obj instanceof ValueObject)) {
+      return false;
     }
 
     if (this.constructor.name !== obj.constructor.name) {
@@ -21,15 +25,15 @@ export abstract class ValueObject {
   }
 
   private equalsComponents(
-    components1: Array<any>,
-    components2: Array<any>
+    components1: Array<unknown>,
+    components2: Array<unknown>
   ): boolean {
-    return components1.every((component: any, index: number): boolean => {
+    return components1.every((component: unknown, index: number): boolean => {
       return this.equalsComponent(component, components2[index]);
     });
   }
 
-  private equalsComponent(component1: any, component2: any): boolean {
+  private equalsComponent(component1: unknown, component2: unknown): boolean {
     if (component1 === component2) {
       return true;
     }
@@ -42,8 +46,8 @@ export abstract class ValueObject {
       return this.equalsComponents(component1, component2);
     }
 
-    if (component1.getEqualityComponents && component1.equals(component2)) {
-      return true;
+    if (component1 instanceof ValueObject && component2 instanceof ValueObject) {
+      return component1.equals(component2);
     }
 
     return false;

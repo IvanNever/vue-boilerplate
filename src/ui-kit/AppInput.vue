@@ -38,7 +38,7 @@ defineExpose({
     :type="type"
     :variant="variant"
     :density="density"
-    :errorMessages="errorMessages"
+    :error-messages="errorMessages"
     @update:model-value="(value) => $emit('update:model-value', value)"
   ></v-text-field>
 </template>

@@ -24,8 +24,8 @@ const {
 
 <template>
   <v-btn
-    :prependIcon="prependIcon"
-    :appendIcon="appendIcon"
+    :prepend-icon="prependIcon"
+    :append-icon="appendIcon"
     :size="size"
     :rounded="rounded"
     :density="density"

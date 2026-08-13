@@ -43,7 +43,7 @@ function handlePasswordConfirmUpdate(value: string): void {
   passwordConfirm.value = value;
 }
 
-async function handleSubmit(): void {
+async function handleSubmit(): Promise<void> {
   if (!password.value) {
     errors.value.password = 'This field is required';
   }
@@ -70,7 +70,7 @@ async function handleSubmit(): void {
 <template>
   <AppForm @submit="handleSubmit">
     <AppInput
-      :modelValue="password"
+      :model-value="password"
       :error-messages="errors.password"
       class="w-100"
       label="New password"
@@ -84,7 +84,7 @@ async function handleSubmit(): void {
       @update:model-value="handlePasswordUpdate"
     />
     <AppInput
-      :modelValue="passwordConfirm"
+      :model-value="passwordConfirm"
       :error-messages="errors.passwordConfirm"
       class="w-100 mt-2"
       label="Confirm Password"

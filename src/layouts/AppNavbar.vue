@@ -4,7 +4,7 @@ import AppIcon from '@/ui-kit/AppIcon.vue';
 import { useDisplay } from 'vuetify';
 import { onMounted } from 'vue';
 
-const { isNavbar, toggleNavbar } = useNavbar();
+const { isNavbar } = useNavbar();
 const { lg, xl, xxl } = useDisplay();
 
 const pages = [
@@ -33,8 +33,8 @@ onMounted(() => {
     <v-list class="navbar__list">
       <v-list-item
         v-for="{ to, title, icon } in pages"
-        :to="to"
         :key="title"
+        :to="to"
         link
       >
         <v-list-item-title class="d-flex align-baseline ga-3">

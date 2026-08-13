@@ -1,7 +1,11 @@
-export function apiErrors(error): string {
+import { isAxiosError } from 'axios';
+
+export function apiErrors(error: unknown): string {
   if (typeof error === 'string') return error;
 
-  switch (error.status) {
+  const status = isAxiosError(error) ? error.response?.status : undefined;
+
+  switch (status) {
     case 400:
       return 'The request could not be understood by the server. Please check your input and try again.';
     case 401:

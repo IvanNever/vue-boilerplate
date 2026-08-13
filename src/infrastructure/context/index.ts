@@ -1,11 +1,11 @@
 import { ApiCoreImpl } from '@/infrastructure/api/ApiCore'
 
-export type Constructor<T> = new (...args: any[]) => T
+export type Constructor<T> = new (...args: unknown[]) => T
 
 export interface Context {
-  registry<T extends Constructor<{}>>(Service: T, key: string): void
-  registryOverwrite<T extends Constructor<{}>>(Service: T, key: string): void
-  registryPublic<T extends Constructor<{}>>(Service: T, key: string): void
+  registry<T extends Constructor<object>>(Service: T, key: string): void
+  registryOverwrite<T extends Constructor<object>>(Service: T, key: string): void
+  registryPublic<T extends Constructor<object>>(Service: T, key: string): void
 
   get<T>(key: string): T
   getPublic<T>(key: string): T
@@ -13,7 +13,7 @@ export interface Context {
 
 class ContextImpl {
   private readonly name: string
-  private readonly context: { [s: string]: any } = {}
+  private readonly context: Record<string, unknown> = {}
   private public?: Context
 
   constructor(name: string) {
@@ -28,7 +28,7 @@ class ContextImpl {
     return key in this.context
   }
 
-  public registry<T extends Constructor<{}>>(Service: T, key: string) {
+  public registry<T extends Constructor<object>>(Service: T, key: string) {
     if (!this.isExist(key)) {
       this.context[key] = new Service()
     } else {
@@ -36,11 +36,11 @@ class ContextImpl {
     }
   }
 
-  public registryOverwrite<T extends Constructor<{}>>(Service: T, key: string) {
+  public registryOverwrite<T extends Constructor<object>>(Service: T, key: string) {
     this.context[key] = new Service()
   }
 
-  public registryPublic<T extends Constructor<{}>>(Service: T, key: string) {
+  public registryPublic<T extends Constructor<object>>(Service: T, key: string) {
     if (!this.public) {
       throw Error(`context '${this.name}' error: public context is not exists`)
     }
@@ -48,7 +48,7 @@ class ContextImpl {
   }
 
   public get<T>(key: string): T {
-    return this.context[key]
+    return this.context[key] as T
   }
 
   public getPublic<T>(key: string): T {

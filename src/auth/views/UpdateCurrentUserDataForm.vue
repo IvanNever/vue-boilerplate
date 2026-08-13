@@ -38,7 +38,7 @@ async function handleSubmit() {
 <template>
   <AppForm @submit="handleSubmit">
     <AppInput
-      :modelValue="userName"
+      :model-value="userName"
       class="w-100"
       label="User name"
       placeholder="Enter user name..."
@@ -48,7 +48,7 @@ async function handleSubmit() {
       @update:model-value="handleUsernameUpdate"
     />
     <AppInput
-      :modelValue="email"
+      :model-value="email"
       class="w-100"
       label="E-mail"
       placeholder="Email address..."

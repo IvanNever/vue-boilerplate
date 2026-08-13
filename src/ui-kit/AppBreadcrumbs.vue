@@ -12,7 +12,7 @@ const { items, divider = '/' } = defineProps<{
 <template>
   <v-breadcrumbs class="pa-0" :items="items" :divider="divider">
     <template #item="{ item, index }">
-      <span class="breadcrumbs__current" v-if="index === items.length - 1">{{
+      <span v-if="index === items.length - 1" class="breadcrumbs__current">{{
         item.title
       }}</span>
       <router-link v-else class="breadcrumbs__link" :to="{ name: item.href }">{{

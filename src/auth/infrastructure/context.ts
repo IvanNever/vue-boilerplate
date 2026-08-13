@@ -1,9 +1,9 @@
-import { createContext } from '@/infrastructure/context';
+import { createContext, type Context } from '@/infrastructure/context';
 import { AuthRepoImpl } from '@/auth/api/authRepoImpl';
 
-export let authContext;
+export let authContext: Context;
 
 export function initAuthContext() {
-  authContext = createContext();
+  authContext = createContext('auth');
   authContext.registry(AuthRepoImpl, 'AuthRepo');
 }

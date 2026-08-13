@@ -3,7 +3,7 @@ import type { Sizes } from '@/ui-kit/commonTypes';
 
 const { icon = 'mdi-rhombus-outline' } = defineProps<{
   icon?: string;
-  size?: Sizes | number;
+  size?: Sizes | number | string;
   color?: string;
 }>();
 </script>

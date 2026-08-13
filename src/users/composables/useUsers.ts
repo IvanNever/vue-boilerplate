@@ -18,7 +18,7 @@ export function useUsers() {
       isLoading.value = true;
       users.value = await userRepo.getUsers();
     } catch (err) {
-      showNotification(apiErrors(error), 'error');
+      showNotification(apiErrors(err), 'error');
     } finally {
       isLoading.value = false;
     }

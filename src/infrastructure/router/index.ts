@@ -86,6 +86,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.name === 'login-page' && token.value) {
     next({ name: 'home' });
+    return;
   }
 
   if (to.name !== 'login-page' && !token.value) {

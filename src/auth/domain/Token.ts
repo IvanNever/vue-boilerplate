@@ -1,3 +1,1 @@
-export type Token = {
-  token: string;
-};
+export type Token = string;

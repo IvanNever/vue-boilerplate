@@ -10,22 +10,5 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: 'modern-compiler'
-      }
-    }
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/infrastructure/test-utils/setupTests.ts'],
-    server: {
-      deps: {
-        inline: ['vuetify']
-      }
-    }
   }
 });

@@ -14,21 +14,4 @@ export class UsersRepoImpl extends BaseRepo implements UsersRepo {
     const res = await this.inst.get<UserDto[]>(baseUrl);
     return res.data.map((item) => userFromDto(item));
   }
-  // async getUser(id: number): Promise<User> {
-  //   const res = await this.inst.get<UserDto>(`${baseUrl}/post/${id}`);
-  //   return userFromDto(res.data);
-  // }
-  // async createUser(User: User): Promise<User> {
-  //   const res = await this.inst.post<UserDto>(`${baseUrl}/post`, {
-  //     User: User
-  //   });
-  //   return userFromDto(res.data);
-  // }
-  // async updateUser(User: User): Promise<User> {
-  //   const res = await this.inst.put<UserDto>(`${baseUrl}/post`, { User: User });
-  //   return userFromDto(res.data);
-  // }
-  // async deleteUser(id: number): Promise<void> {
-  //   return await this.inst.delete(`${baseUrl}/post/${id}`);
-  // }
 }
