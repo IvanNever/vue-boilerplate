@@ -7,6 +7,10 @@ import * as directives from 'vuetify/directives';
 import 'vuetify/styles';
 
 vi.stubGlobal('ResizeObserver', ResizeObserver);
+vi.stubGlobal('visualViewport', {
+  addEventListener: () => {},
+  removeEventListener: () => {}
+});
 
 const vuetify = createVuetify({
   components,
